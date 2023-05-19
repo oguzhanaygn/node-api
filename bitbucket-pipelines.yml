@@ -1,0 +1,31 @@
+
+pipelines:
+  branches:
+    dev:
+      - step:
+          name: "Image Build On dev"
+          script:
+            - cd ./app && docker build --no-cache -t ${DOCKER_REGISTRY}/${BITBUCKET_REPO_SLUG}:${BITBUCKET_BRANCH}.${BITBUCKET_BUILD_NUMBER} -t ${DOCKER_REGISTRY}/${BITBUCKET_REPO_SLUG}:${BITBUCKET_BRANCH}-latest .
+            - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+            - docker push $DOCKER_REGISTRY/${BITBUCKET_REPO_SLUG}:${BITBUCKET_BRANCH}.${BITBUCKET_BUILD_NUMBER}
+            - docker push $DOCKER_REGISTRY/${BITBUCKET_REPO_SLUG}:${BITBUCKET_BRANCH}-latest
+      - step:
+          name: "Deploy to dev"
+          script:
+            - cd helm/templates && sed -i "s/%ENVIRONMENT%/dev/g" * && sed -i "s/%IMAGETAG%/${BITBUCKET_BRANCH}.${BITBUCKET_BUILD_NUMBER}/g" deployment.yaml
+            - helm template node-api-$ENVIRONMENT ./helm/ --dry-run
+            - helm upgrade node-api-$ENVIRONMENT ./helm 
+    master:
+      - step:
+          name: "Image Build On Master"
+          script:
+            - cd ./app && docker build --no-cache -t ${DOCKER_REGISTRY}/${BITBUCKET_REPO_SLUG}:${BITBUCKET_BRANCH}.${BITBUCKET_BUILD_NUMBER} -t ${DOCKER_REGISTRY}/${BITBUCKET_REPO_SLUG}:${BITBUCKET_BRANCH}-latest .
+            - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+            - docker push $DOCKER_REGISTRY/${BITBUCKET_REPO_SLUG}:${BITBUCKET_BRANCH}.${BITBUCKET_BUILD_NUMBER}
+            - docker push $DOCKER_REGISTRY/${BITBUCKET_REPO_SLUG}:${BITBUCKET_BRANCH}-latest
+      - step:
+          name: "Deploy to Prod"
+          script:
+            - cd helm/templates && sed -i "s/%ENVIRONMENT%/prod/g" * && sed -i "s/%IMAGETAG%/${BITBUCKET_BRANCH}.${BITBUCKET_BUILD_NUMBER}/g" deployment.yaml
+            - helm template node-api-$ENVIRONMENT ./helm/ --dry-run
+            - helm upgrade node-api-$ENVIRONMENT ./helm 

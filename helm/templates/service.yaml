@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.common.svcName }}
+  namespace : {{ .Values.%ENVIRONMENT%.Namespace }}
+  labels:
+    app: {{ .Values.common.appName }}
+spec:
+  selector:
+    app: {{ .Values.common.appName }}
+  type: {{ .Values.common.serviceType }}
+  ports:
+    - port: {{ .Values.common.servicePort }}
+      targetPort: {{ .Values.common.appPort}}
+      protocol: {{ .Values.common.ServiceProtocol }}
+      name: {{ .Values.common.appName }}

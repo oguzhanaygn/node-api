@@ -1,0 +1,25 @@
+{
+  "name": "node-postgres-api",
+  "version": "1.0.0",
+  "description": "Node API with Express and Postgres",
+  "main": "app.js",
+  "repository": "https://github.com/ishan-me/Node_API",
+  "author": "Ishan ",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "nodemon server.js",
+    "start:prod": "NODE_ENV=production nodemon server.js"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^3.22.0",
+    "morgan": "^1.10.0",
+    "node-postgres": "^0.1.4",
+    "pg": "^8.0.2"
+  }
+}

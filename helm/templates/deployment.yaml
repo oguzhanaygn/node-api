@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.common.appName }}
+  namespace : {{ .Values.%ENVIRONMENT%.Namespace }}
+spec:
+  replicas: {{ .Values.%ENVIRONMENT%.replicas }}
+  revisionHistoryLimit: {{ .Values.%ENVIRONMENT%.revisionHistoryLimit }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.%ENVIRONMENT%.maxSurge }}
+      maxUnavailable: {{ .Values.%ENVIRONMENT%.maxUnavailable }}
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ .Values.common.appName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.common.appName }}
+    spec:
+      containers:
+      - name: {{ .Values.common.appName }}
+        image: "{{ .Values.common.RegistryName }}/{{ .Values.common.appName }}:%IMAGETAG%"
+        env:
+        - name: DB_HOST
+          value: "{{ .Values.%ENVIRONMENT%.DB_HOST }}"
+        - name: DB_PORT
+          value: "{{ .Values.%ENVIRONMENT%.DB_PORT }}"
+        - name: DB_USER
+          value: "{{ .Values.%ENVIRONMENT%.DB_USER }}"
+        - name: DATABASE_PASSWORD
+          value: "{{ .Values.%ENVIRONMENT%.DATABASE_PASSWORD }}"
+        - name: DB_DATABASE
+          value: "{{ .Values.%ENVIRONMENT%.DB_DATABASE }}"
+        - name: PORT
+          value: "{{ .Values.common.appPort }}"
+        imagePullPolicy: {{ .Values.common.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.common.appPort }}
+        livenessProbe:
+          failureThreshold: {{ .Values.%ENVIRONMENT%.failureThreshold }}
+          httpGet:
+            path: {{ .Values.common.healthcheckPath }}
+            port: {{ .Values.common.appPort }}
+          initialDelaySeconds: {{ .Values.%ENVIRONMENT%.initialDelaySeconds }}
+          periodSeconds: {{ .Values.%ENVIRONMENT%.periodSeconds }} 
+          successThreshold: {{ .Values.%ENVIRONMENT%.successThreshold }}
+          timeoutSeconds: {{ .Values.%ENVIRONMENT%.timeoutSeconds }}
+        readinessProbe:
+          failureThreshold: {{ .Values.%ENVIRONMENT%.failureThreshold }}
+          httpGet:
+            path: {{ .Values.common.healthcheckPath }}
+            port: {{ .Values.common.appPort }}
+          initialDelaySeconds: {{ .Values.%ENVIRONMENT%.initialDelaySeconds }}
+          periodSeconds: {{ .Values.%ENVIRONMENT%.periodSeconds }} 
+          successThreshold: {{ .Values.%ENVIRONMENT%.successThreshold }}
+          timeoutSeconds: {{ .Values.%ENVIRONMENT%.timeoutSeconds }}
+        resources:
+          limits:
+            cpu: {{ .Values.%ENVIRONMENT%.cpuLimit }}
+            memory: {{ .Values.%ENVIRONMENT%.memoryLimit }}
+          requests:
+            cpu: {{ .Values.%ENVIRONMENT%.cpuRequest }}
+            memory: {{ .Values.%ENVIRONMENT%.memoryRequest }}

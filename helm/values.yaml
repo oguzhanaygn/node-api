@@ -1,0 +1,62 @@
+common :
+  appName : node-api
+  svcName : node-api-svc
+  hpaName : node-api-hpa
+  healthcheckPath : /food
+  serviceType : NodePort
+  appPort : 3000
+  imagePullPolicy : Always
+  servicePort : 80
+  RegistryName : <RegistryName>
+  ServiceProtocol: TCP
+
+prod :
+  Namespace : prod
+  memoryRequest : 32Mi
+  cpuRequest : 100m
+  memoryLimit : 64Mi
+  cpuLimit : 150m
+  replicas : 3
+  minReplicas : 2
+  maxReplicas : 10
+  targetUtilizationType: cpu
+  targetUtilizationPercentage : 80
+  initialDelaySeconds : 10
+  periodSeconds : 20
+  successThreshold: 1
+  timeoutSeconds: 5
+  revisionHistoryLimit : 3
+  maxSurge : 20
+  maxUnavailable : 10
+  DB_USER: api_user
+  DATABASE_PASSWORD: root
+  DB_DATABASE: foodie
+  DB_PORT: 5432
+  DB_HOST: postgres-prod.prod.svc.cluster.local
+
+dev :
+  Namespace : dev
+  memoryRequest : 16Mi
+  cpuRequest : 50m
+  memoryLimit : 32Mi
+  cpuLimit : 75m
+  replicas : 2
+  minReplicas : 1
+  maxReplicas : 5
+  targetUtilizationType: cpu
+  targetUtilizationPercentage : 80
+  initialDelaySeconds : 10
+  periodSeconds : 20
+  successThreshold: 1
+  timeoutSeconds: 5
+  revisionHistoryLimit : 2
+  maxSurge : 20
+  maxUnavailable : 50
+  DB_USER: api_user
+  DATABASE_PASSWORD: root
+  DB_DATABASE: foodie
+  DB_PORT: 5432
+  DB_HOST: postgres-dev.dev.svc.cluster.local
+  
+
+

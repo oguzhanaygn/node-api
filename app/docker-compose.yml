@@ -1,0 +1,36 @@
+## Created for testing Purposes
+
+version: '3.8'
+services:
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes: 
+      - ./db:/var/lib/postgresql/data
+      - ./queries/food.sql:/docker-entrypoint-initdb.d/create_tables.sql
+  api:
+    container_name: foods
+    build: .
+    image: foods
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 3000:3000
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: api_user
+      DATABASE_PASSWORD: root
+      DB_DATABASE: foodie
+      PORT: 3000
+    links:
+      - db
+volumes:
+  db:
+    driver: local

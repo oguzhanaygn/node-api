@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-prod
+  Namespace: prod
+  labels:
+    app: postgres-prod
+    role: service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-prod
+      role: service
+  serviceName: postgres-prod
+  template:
+    metadata:
+      labels:
+        app: postgres-prod
+        role: service
+    spec:
+      containers:
+        - name: postgres-prod
+          image: postgres:14.1-alpine
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_USER
+                  name: postgres-prod-credentials
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: postgres-prod-credentials
+          ports:
+            - containerPort: 5432
+              name: postgres-prod
+              protocol: TCP
+          volumeMounts:
+            - name: postgres-prod-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-prod-data
+          persistentVolumeClaim:
+            claimName: postgres-prod-data

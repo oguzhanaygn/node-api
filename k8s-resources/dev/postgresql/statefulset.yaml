@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-dev
+  namespace: dev
+  labels:
+    app: postgres-dev
+    role: service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-dev
+      role: service
+  serviceName: postgres-dev
+  template:
+    metadata:
+      labels:
+        app: postgres-dev
+        role: service
+    spec:
+      containers:
+        - name: postgres-dev
+          image: postgres:14.1-alpine
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-dev-credentials
+                  key: POSTGRES_USER
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-dev-credentials
+                  key: POSTGRES_DB
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-dev-credentials
+                  key: POSTGRES_PASSWORD
+          ports:
+            - containerPort: 5432
+              name: postgres-dev
+              protocol: TCP
+          volumeMounts:
+            - name: postgres-dev-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-dev-data
+          persistentVolumeClaim:
+            claimName: postgres-dev-data
